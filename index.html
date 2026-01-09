@@ -7,8 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
-        #root { min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        #root { min-height: 100vh; display: flex; flex-direction: column; }
+        /* Esconder scrollbar mantendo funcionalidade */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 <script type="importmap">
 {
@@ -25,18 +28,21 @@
 }
 </script>
 <script>
+  // Tratamento global de erros para depuração facilitada
   window.onerror = function(message, source, lineno, colno, error) {
     console.error("Erro Detectado:", message, "em", source, "linha:", lineno);
     const root = document.getElementById('root');
     if (root && root.innerHTML === "") {
-        root.innerHTML = '<div style="padding: 50px; text-align: center; font-family: sans-serif; color: #333;">' +
-            '<h1 style="color: #e63946;">Erro ao carregar aplicação</h1>' +
-            '<p>Não foi possível iniciar o sistema ConstruFlow.</p>' +
-            '<p style="font-size: 14px; color: #666; max-width: 600px; margin: 20px auto; background: #f8f8f8; padding: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: left; overflow: auto;">' + 
-            '<strong>Detalhes:</strong> ' + message + '<br><strong>Arquivo:</strong> ' + source + '<br><strong>Linha:</strong> ' + lineno + 
-            '</p>' +
-            '<button onclick="location.reload()" style="background: #f97316; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Tentar Novamente</button>' +
-            '</div>';
+        root.innerHTML = `
+          <div style="padding: 40px; text-align: center; font-family: sans-serif;">
+            <h1 style="color: #ea580c; font-size: 24px;">Erro de Inicialização</h1>
+            <p style="color: #666; margin: 10px 0;">Não foi possível carregar o ConstruFlow ERP.</p>
+            <div style="background: #fef2f2; border: 1px solid #fee2e2; padding: 15px; border-radius: 8px; margin: 20px auto; max-width: 500px; text-align: left;">
+              <code style="font-size: 12px; color: #991b1b;">${message}</code>
+            </div>
+            <button onclick="location.reload()" style="background: #ea580c; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Recarregar Sistema</button>
+          </div>
+        `;
     }
     return false;
   };
