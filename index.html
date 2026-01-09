@@ -17,9 +17,9 @@
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?deps=react@19.0.0,react-dom@19.0.0",
-    "lucide-react": "https://esm.sh/lucide-react@0.460.0?deps=react@19.0.0",
-    "recharts": "https://esm.sh/recharts@2.15.0?deps=react@19.0.0,react-dom@19.0.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react",
+    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
@@ -27,7 +27,15 @@
 </script>
 <script>
   window.onerror = function(message, source, lineno, colno, error) {
-    console.error("Erro Global:", message, "em", source, ":", lineno);
+    console.error("Erro Detectado:", message, "em", source, "linha:", lineno);
+    // Tenta avisar o usuário se algo falhar drasticamente
+    if (document.getElementById('root') && document.getElementById('root').innerHTML === "") {
+        document.getElementById('root').innerHTML = '<div style="padding: 50px; text-align: center; color: #333;">' +
+            '<h1 style="color: #e63946;">Erro ao carregar aplicação</h1>' +
+            '<p>Verifique o console do desenvolvedor para mais detalhes.</p>' +
+            '<p style="font-size: 12px; color: #999;">' + message + '</p>' +
+            '</div>';
+    }
     return false;
   };
 </script>

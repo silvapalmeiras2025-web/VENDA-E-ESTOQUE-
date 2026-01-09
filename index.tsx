@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import App from './App';
 
+console.log("Iniciando ConstruFlow ERP...");
+
 const container = document.getElementById('root');
 
 if (!container) {
@@ -18,8 +20,12 @@ if (!container) {
         </HashRouter>
       </React.StrictMode>
     );
+    console.log("Renderização inicial concluída.");
   } catch (error) {
     console.error("Erro durante a renderização inicial do React:", error);
-    container.innerHTML = `<div style="padding: 20px; color: red;">Erro ao carregar o sistema: ${error.message}</div>`;
+    container.innerHTML = `<div style="padding: 20px; color: red; font-family: sans-serif;">
+      <h2>Erro de Inicialização</h2>
+      <pre>${error instanceof Error ? error.message : String(error)}</pre>
+    </div>`;
   }
 }
