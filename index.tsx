@@ -1,19 +1,25 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { HashRouter as Router } from 'react-router-dom';
+import { createRoot } from 'react-dom/client';
+import { HashRouter } from 'react-router-dom';
 import App from './App';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+const container = document.getElementById('root');
 
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
-  </React.StrictMode>
-);
+if (!container) {
+  console.error("Erro Crítico: Elemento #root não encontrado no DOM.");
+} else {
+  try {
+    const root = createRoot(container);
+    root.render(
+      <React.StrictMode>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </React.StrictMode>
+    );
+  } catch (error) {
+    console.error("Erro durante a renderização inicial do React:", error);
+    container.innerHTML = `<div style="padding: 20px; color: red;">Erro ao carregar o sistema: ${error.message}</div>`;
+  }
+}

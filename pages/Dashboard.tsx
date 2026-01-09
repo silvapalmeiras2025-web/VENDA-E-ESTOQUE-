@@ -9,9 +9,9 @@ import {
   ArrowUpRight,
   ShoppingCart
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line } from 'recharts';
-import { getStorageData } from '../db';
-import { Sale, Product, FinanceRecord, TransactionType } from '../types';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getStorageData, INITIAL_PRODUCTS } from '../db';
+import { Sale, Product, FinanceRecord } from '../types';
 
 const DashboardCard = ({ title, value, icon: Icon, color, trend }: any) => (
   <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-start justify-between">
@@ -34,19 +34,17 @@ const DashboardCard = ({ title, value, icon: Icon, color, trend }: any) => (
 const Dashboard: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [finance, setFinance] = useState<FinanceRecord[]>([]);
 
   useEffect(() => {
     setSales(getStorageData('sales', []));
-    setProducts(getStorageData('products', []));
-    setFinance(getStorageData('finance', []));
+    setProducts(getStorageData('products', INITIAL_PRODUCTS));
   }, []);
 
   const totalSoldToday = sales
     .filter(s => s.date.startsWith(new Date().toISOString().split('T')[0]))
     .reduce((acc, curr) => acc + curr.total, 0);
 
-  const totalMonthly = sales.reduce((acc, curr) => acc + curr.total, 0); // Simplified monthly
+  const totalMonthly = sales.reduce((acc, curr) => acc + curr.total, 0);
   const lowStockCount = products.filter(p => p.estoque_atual <= p.estoque_minimo).length;
   
   const chartData = [
@@ -68,7 +66,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardCard 
           title="Vendas Hoje" 
@@ -100,7 +97,6 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Chart */}
         <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold mb-6">Faturamento Diário (R$)</h3>
           <div className="h-80">
@@ -119,7 +115,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Top Products */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold mb-6">Produtos Mais Vendidos</h3>
           <div className="space-y-6">
@@ -144,7 +139,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Low Stock Table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Alertas de Reposição</h3>

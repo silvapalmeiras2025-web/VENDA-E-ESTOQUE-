@@ -3,18 +3,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
   Plus, 
-  Minus, 
   Trash2, 
-  Calculator, 
-  UserPlus, 
-  CreditCard, 
-  DollarSign,
   CheckCircle2,
   X,
-  // Added ShoppingCart to fix "Cannot find name 'ShoppingCart'" errors on lines 180 and 223
   ShoppingCart
 } from 'lucide-react';
-import { getStorageData, setStorageData } from '../db';
+import { getStorageData, setStorageData, INITIAL_PRODUCTS, INITIAL_CLIENTS } from '../db';
 import { Product, Client, Sale, SaleItem, UnitOfMeasure, PaymentMethod, TransactionType, FinanceRecord } from '../types';
 
 const POS: React.FC = () => {
@@ -30,9 +24,11 @@ const POS: React.FC = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   useEffect(() => {
-    setProducts(getStorageData('products', []));
-    setClients(getStorageData('clients', []));
-    setSelectedClient(getStorageData('clients', [])[0] || null);
+    const loadedProducts = getStorageData('products', INITIAL_PRODUCTS);
+    const loadedClients = getStorageData('clients', INITIAL_CLIENTS);
+    setProducts(loadedProducts);
+    setClients(loadedClients);
+    setSelectedClient(loadedClients[0] || null);
   }, []);
 
   const filteredProducts = products.filter(p => 
@@ -93,19 +89,17 @@ const POS: React.FC = () => {
       status: 'concluida'
     };
 
-    // Update Storage
     const allSales = getStorageData<Sale[]>('sales', []);
     setStorageData('sales', [...allSales, newSale]);
 
-    // Update Stock
-    const allProducts = getStorageData<Product[]>('products', []);
+    const allProducts = getStorageData('products', INITIAL_PRODUCTS);
     const updatedProducts = allProducts.map(p => {
       const soldItem = cart.find(item => item.productId === p.id);
       return soldItem ? { ...p, estoque_atual: p.estoque_atual - soldItem.quantidade } : p;
     });
     setStorageData('products', updatedProducts);
+    setProducts(updatedProducts);
 
-    // Update Finance
     const allFinance = getStorageData<FinanceRecord[]>('finance', []);
     const newFinance: FinanceRecord = {
       id: `FIN-${Date.now()}`,
@@ -119,7 +113,6 @@ const POS: React.FC = () => {
     };
     setStorageData('finance', [...allFinance, newFinance]);
 
-    // Reset State
     setCart([]);
     setDiscountGeneral(0);
     setIsSuccessModalOpen(true);
@@ -127,9 +120,8 @@ const POS: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full">
-      {/* Products Selection */}
       <div className="flex-1 flex flex-col min-w-0 bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden">
-        <div className="relative mb-4">
+        <div className="relative mb-4 shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input 
             type="text" 
@@ -140,11 +132,11 @@ const POS: React.FC = () => {
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-4">
           {filteredProducts.map(product => (
             <div 
               key={product.id} 
-              className="p-4 border border-gray-100 rounded-xl hover:border-orange-200 hover:shadow-md transition-all group relative cursor-pointer"
+              className="p-4 border border-gray-100 rounded-xl hover:border-orange-200 hover:shadow-md transition-all group relative cursor-pointer h-fit flex flex-col"
               onClick={() => {
                 if (product.unidade_medida === UnitOfMeasure.M2 || product.unidade_medida === UnitOfMeasure.METRO) {
                   setShowM2Calc({ active: true, product });
@@ -174,8 +166,7 @@ const POS: React.FC = () => {
         </div>
       </div>
 
-      {/* Cart Sidebar */}
-      <div className="w-full lg:w-96 bg-gray-900 rounded-xl shadow-xl flex flex-col overflow-hidden">
+      <div className="w-full lg:w-96 bg-gray-900 rounded-xl shadow-xl flex flex-col overflow-hidden shrink-0">
         <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-white font-bold text-lg flex items-center">
@@ -199,7 +190,7 @@ const POS: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
           {cart.map(item => (
             <div key={item.productId} className="flex items-start space-x-3 bg-gray-800 p-3 rounded-lg group">
               <div className="flex-1 min-w-0">
@@ -221,14 +212,14 @@ const POS: React.FC = () => {
             </div>
           ))}
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-gray-600 space-y-3">
+            <div className="h-full flex flex-col items-center justify-center text-gray-600 space-y-3 py-10">
               <ShoppingCart size={48} className="opacity-20" />
               <p>O carrinho está vazio</p>
             </div>
           )}
         </div>
 
-        <div className="p-6 bg-gray-800 space-y-4 border-t border-gray-700">
+        <div className="p-6 bg-gray-800 space-y-4 border-t border-gray-700 shrink-0">
           <div className="space-y-2">
             <div className="flex justify-between text-gray-400 text-sm">
               <span>Subtotal</span>
@@ -281,7 +272,6 @@ const POS: React.FC = () => {
         </div>
       </div>
 
-      {/* Calculator Modal */}
       {showM2Calc.active && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -350,11 +340,10 @@ const POS: React.FC = () => {
         </div>
       )}
 
-      {/* Success Modal */}
       {isSuccessModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-2xl p-10 flex flex-col items-center text-center max-w-sm shadow-2xl">
-            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 animate-bounce">
+            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
               <CheckCircle2 size={48} />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Venda Realizada!</h3>
