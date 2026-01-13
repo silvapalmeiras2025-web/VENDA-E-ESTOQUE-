@@ -31,6 +31,7 @@ export interface User {
   id: string;
   nome: string;
   login: string;
+  senha?: string; // Adicionado para autenticação
   perfil: UserProfile;
   ativo: boolean;
 }
@@ -99,5 +100,5 @@ export interface FinanceRecord {
   data: string;
   descricao: string;
   status: 'pago' | 'pendente';
-  referencia_id?: string; // ID da venda ou compra
+  referencia_id?: string;
 }
